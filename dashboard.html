@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>EventCueFlow Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="logo">EventCueFlow</div>
+
+  <div class="nav-right">
+    <span id="userInfo"></span>
+    <button class="btn-outline" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+
+<div class="container">
+
+<h2>
+<img src="images/icons/calendar.png" class="icon">
+Dashboard
+</h2>
+
+<div class="grid">
+
+<div class="box">
+<h3>ข้อมูลงาน</h3>
+<p><b>ชื่องาน:</b> Sonix Event Project</p>
+<p><b>วันที่:</b> 15 ก.พ. 2026</p>
+</div>
+
+
+<div class="box">
+<h3>สรุปคิวงาน</h3>
+<p id="totalCues">จำนวนคิวทั้งหมด: -</p>
+<p id="nextCue">คิวถัดไป: -</p>
+</div>
+
+
+<div class="box">
+<h3>Last Updated</h3>
+<p id="lastUpdatedText">Last updated: -</p>
+</div>
+
+</div>
+
+
+<div class="actions">
+
+<button class="btn" onclick="goRundown()">
+<img src="images/icons/calendar.png" class="icon">
+ไปหน้าตาราง Cue / Rundown
+</button>
+
+
+<button class="btn" id="addCueBtn" onclick="goAddCue()">
+<img src="images/icons/add.png" class="icon">
+เพิ่มคิวงาน
+</button>
+
+</div>
+
+</div>
+
+
+<!-- Notification -->
+<div id="notification" class="notification">
+🔔 มีการอัปเดต Rundown!
+</div>
+
+
+<script src="app.js"></script>
+
+<script>
+
+checkLogin();
+showUserInfo();
+
+
+if(localStorage.getItem("rundownUpdated") === "true"){
+
+document.getElementById("notification").style.display="block";
+
+setTimeout(function(){
+document.getElementById("notification").style.display="none";
+},4000);
+
+localStorage.setItem("rundownUpdated","false");
+
+}
+
+
+const lastUpdated = getLastUpdated();
+
+if(lastUpdated){
+document.getElementById("lastUpdatedText").innerText =
+"Last updated: " + lastUpdated.time + " by " + lastUpdated.user;
+}
+
+
+
+const cues = getCues();
+
+document.getElementById("totalCues").innerText =
+"จำนวนคิวทั้งหมด: " + cues.length;
+
+
+if(cues.length>0){
+
+document.getElementById("nextCue").innerText =
+"คิวถัดไป: " + cues[0].time + " - " + cues[0].title;
+
+}
+else{
+
+document.getElementById("nextCue").innerText =
+"คิวถัดไป: ไม่มีข้อมูล";
+
+}
+
+
+
+const role = localStorage.getItem("role");
+
+if(role === "viewer"){
+document.getElementById("addCueBtn").style.display="none";
+}
+
+
+
+function goRundown(){
+window.location.href="rundown.html";
+}
+
+function goAddCue(){
+window.location.href="cue-form.html";
+}
+
+</script>
+
+</body>
+</html>

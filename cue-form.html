@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventCueFlow - Add/Edit Cue</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+  <div class="logo">EventCueFlow</div>
+
+  <div class="nav-right">
+    <button class="btn-outline" onclick="window.location.href='rundown.html'">Back</button>
+    <button class="btn-outline" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+
+<h2 id="formTitle">Add Cue</h2>
+
+<div class="form-box">
+
+<label>เวลา</label>
+<input type="text" id="time" placeholder="เช่น 10:30">
+
+<label>ชื่อคิว</label>
+<input type="text" id="title" placeholder="เช่น Opening">
+
+<label>รายละเอียด</label>
+<textarea id="detail" placeholder="รายละเอียดคิวงาน"></textarea>
+
+<label>ผู้รับผิดชอบ</label>
+<input type="text" id="owner" placeholder="เช่น ทีมพิธีกร / ทีมเทคนิค">
+
+<label>สถานะ</label>
+<select id="status">
+<option value="Pending">Pending</option>
+<option value="Running">Running</option>
+<option value="Done">Done</option>
+</select>
+
+<div class="actions">
+
+<button id="saveBtn" class="btn">
+<img src="images/icons/save.png" class="icon">
+บันทึก
+</button>
+
+<button class="btn-outline" onclick="window.location.href='rundown.html'">
+ยกเลิก
+</button>
+
+</div>
+</div>
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+checkLogin()
+
+const role = localStorage.getItem("role")
+
+if(role === "viewer"){
+  alert("❌ คุณไม่มีสิทธิ์เข้าหน้านี้")
+  window.location.href="rundown.html"
+}
+
+let editIndex = localStorage.getItem("editIndex")
+const cues = getCues()
+
+// ถ้าเป็นโหมดแก้ไข
+if(editIndex !== null){
+
+  editIndex = Number(editIndex)
+
+  document.getElementById("formTitle").innerText="Edit Cue"
+
+  const cue = cues[editIndex]
+
+  document.getElementById("time").value = cue.time
+  document.getElementById("title").value = cue.title
+  document.getElementById("detail").value = cue.detail
+  document.getElementById("owner").value = cue.owner
+  document.getElementById("status").value = cue.status
+
+}
+
+document.getElementById("saveBtn").addEventListener("click",function(){
+
+  const time = document.getElementById("time").value.trim()
+  const title = document.getElementById("title").value.trim()
+  const detail = document.getElementById("detail").value.trim()
+  const owner = document.getElementById("owner").value.trim()
+  const status = document.getElementById("status").value
+
+  if(!time || !title || !detail || !owner){
+    alert("กรุณากรอกข้อมูลให้ครบ")
+    return
+  }
+
+  const newCue = {
+    time,
+    title,
+    detail,
+    owner,
+    status
+  }
+
+  if(editIndex !== null){
+
+    cues[editIndex] = newCue
+    localStorage.removeItem("editIndex")
+
+  }else{
+
+    cues.push(newCue)
+
+  }
+
+  saveCues(cues)
+
+  updateLastUpdated(localStorage.getItem("username"))
+
+  alert("✅ บันทึกข้อมูลสำเร็จ")
+
+  window.location.href="rundown.html"
+
+})
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventCueFlow - Rundown</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+  <div class="logo">EventCueFlow</div>
+
+  <div class="nav-right">
+    <button class="btn-outline" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    <button class="btn-outline" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+
+<h2>Cue / Rundown Table</h2>
+
+<button class="btn" id="addCueBtn" onclick="goAddCue()">
+  <img src="images/icons/add.png" class="icon"> เพิ่ม Cue
+</button>
+
+<table>
+<thead>
+<tr>
+<th>เวลา</th>
+<th>ชื่อคิว</th>
+<th>รายละเอียด</th>
+<th>ผู้รับผิดชอบ</th>
+<th>สถานะ</th>
+<th id="actionHeader">จัดการ</th>
+</tr>
+</thead>
+
+<tbody id="cueTableBody"></tbody>
+
+</table>
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+checkLogin()
+
+const role = localStorage.getItem("role")
+
+if(role === "viewer"){
+  document.getElementById("addCueBtn").style.display = "none"
+  document.getElementById("actionHeader").style.display = "none"
+}
+
+renderTable()
+
+function renderTable(){
+
+  const cues = getCues()
+  const tbody = document.getElementById("cueTableBody")
+
+  tbody.innerHTML = ""
+
+  if(cues.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6">ยังไม่มีข้อมูลคิวงาน</td></tr>`
+    return
+  }
+
+  cues.forEach((cue,index)=>{
+
+    const tr = document.createElement("tr")
+
+    tr.innerHTML = `
+     <td>${cue.time}</td>
+     <td>${cue.title}</td>
+     <td>${cue.detail}</td>
+     <td>${cue.owner}</td>
+     <td>
+     <span class="status ${cue.status}">
+     ${cue.status}
+    </span>
+    </td>
+  <td class="actions-col">
+
+      <button class="btn-small" onclick="editCue(${index})">
+      <img src="images/icons/edit.png" class="icon"> แก้ไข
+      </button>
+
+      <button class="btn-small danger" onclick="deleteCue(${index})">
+      <img src="images/icons/delete.png" class="icon"> ลบ
+      </button>
+
+      </td>
+    `
+
+    if(role === "viewer"){
+      tr.querySelector(".actions-col").style.display = "none"
+    }
+
+    tbody.appendChild(tr)
+
+  })
+
+}
+
+function goAddCue(){
+  window.location.href = "cue-form.html"
+}
+
+function editCue(index){
+
+  if(role === "viewer"){
+    alert("❌ คุณไม่มีสิทธิ์แก้ไขข้อมูล")
+    return
+  }
+
+  localStorage.setItem("editIndex",index)
+  window.location.href = "cue-form.html"
+
+}
+
+function deleteCue(index){
+
+  if(role === "viewer"){
+    alert("❌ คุณไม่มีสิทธิ์ลบข้อมูล")
+    return
+  }
+
+  if(confirm("ต้องการลบคิวงานนี้หรือไม่?")){
+
+    const cues = getCues()
+
+    cues.splice(index,1)
+
+    saveCues(cues)
+
+    updateLastUpdated(localStorage.getItem("username"))
+
+    alert("✅ ลบคิวงานสำเร็จ")
+
+    renderTable()
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
